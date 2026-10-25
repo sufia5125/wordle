@@ -1,20 +1,18 @@
 //take the csv inputs, give json outputs at build time.
+const fs = require('fs');
 
-const validGuessPath = "/data/valid_guesses.csv"
-const allSolutionPath = "/data/all_solutions.csv"
+const lines = fs.readFileSync('data/words.csv', 'utf8').split(/\r?\n/);
+if (lines[0].trim().toLowerCase() === 'words') lines.shift();   // header
 
+const words = [...new Set(
+  lines
+    .map((l) => l.trim().replace(/^"|"$/g, '').toLowerCase())
+    .filter((w) => /^[a-z]{5}$/.test(w))
+)].sort();
 
-function validGuesstoJSON(csv){
-    var lines = csv.split('\n');
-    if (lines.length === 0) return "[]";
-    var result = []
-    for (let i = 0; i < lines.length; i++){
-        let obj = {};
-        
-
-    }
-}
-
-function allSolutiontoJSON(csv){
-
-}
+// One big string instead of an array literal: Metro/Hermes parse it much faster.
+fs.writeFileSync(
+  'src/data/validGuesses.ts',
+  `export default ${JSON.stringify(words.join(' '))};\n`
+);
+console.log(`Wrote ${words.length} words`);
